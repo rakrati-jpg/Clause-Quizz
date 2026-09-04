@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Clauses 200 MCQ — Advanced Admin</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#07111f;--panel:rgba(18,30,50,.72);--panel2:rgba(25,40,65,.72);
+  --line:rgba(255,255,255,.10);--text:#eef5ff;--muted:#9eb0c8;
+  --accent:#66d9ff;--good:#42e695;--bad:#ff6b81;--warn:#ffd166;
+  --shadow:0 20px 60px rgba(0,0,0,.35)
+}
+body{
+ margin:0;color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+ background:
+ radial-gradient(circle at 10% 0%,rgba(102,217,255,.16),transparent 30%),
+ radial-gradient(circle at 90% 10%,rgba(126,87,255,.16),transparent 30%),
+ linear-gradient(145deg,#06101d,#0b1728 55%,#07101d);
+ min-height:100vh;padding-bottom:86px
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.025),transparent 35%,rgba(255,255,255,.02));}
+.wrap{width:min(1180px,94%);margin:auto;padding:18px 0 30px}
+.glass{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow);border-radius:24px}
+.hero{padding:22px;position:sticky;top:10px;z-index:10}
+.brand{display:flex;justify-content:space-between;gap:16px;align-items:center}
+h1{margin:0;font-size:clamp(22px,5vw,34px);letter-spacing:-.7px}
+.sub{color:var(--muted);margin-top:6px;font-size:13px}
+.conn{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--warn);box-shadow:0 0 14px currentColor}
+.dot.live{background:var(--good);color:var(--good)}
+.dot.off{background:var(--bad);color:var(--bad)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.kpi{padding:16px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid var(--line)}
+.kpi .v{font-size:27px;font-weight:800;margin-top:5px}.kpi .l{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;margin-top:16px}
+.card{padding:18px}
+.section-title{font-size:15px;font-weight:800;margin-bottom:12px}
+.controls{display:flex;gap:10px;flex-wrap:wrap}
+input,select,button{
+ border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--text);
+ border-radius:13px;padding:12px 13px;font:inherit;outline:none
+}
+input{flex:1;min-width:190px}select{min-width:145px}
+button{cursor:pointer;font-weight:700}
+button:hover{background:rgba(255,255,255,.10)}
+.primary{background:rgba(102,217,255,.16);border-color:rgba(102,217,255,.35)}
+.tablewrap{overflow:auto;margin-top:14px}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:760px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);font-size:13px}
+th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px;position:sticky;top:0;background:#122039}
+tr:hover td{background:rgba(255,255,255,.025)}
+.name{font-weight:800}.small{font-size:11px;color:var(--muted)}
+.badge{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800}
+.live-b{background:rgba(66,230,149,.12);color:var(--good)}.done-b{background:rgba(102,217,255,.12);color:var(--accent)}.idle-b{background:rgba(255,209,102,.12);color:var(--warn)}
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;min-width:100px}
+.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#8f7cff)}
+.progressline{display:flex;align-items:center;gap:9px}.pct{min-width:40px;text-align:right;font-size:11px;color:var(--muted)}
+.analytics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.a{padding:13px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.035)}
+.a b{display:block;font-size:20px;margin-top:4px}.a span{font-size:11px;color:var(--muted)}
+.empty{text-align:center;padding:35px;color:var(--muted)}
+.note{margin-top:10px;color:var(--muted);font-size:11px;line-height:1.5}
+.bottom{
+ position:fixed;z-index:30;bottom:12px;left:50%;transform:translateX(-50%);
+ width:min(620px,92%);padding:8px;display:grid;grid-template-columns:repeat(4,1fr);
+ background:rgba(10,20,34,.82);border:1px solid var(--line);backdrop-filter:blur(20px);
+ border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.45)
+}
+.nav{border:0;background:transparent;padding:10px 6px;color:var(--muted);font-size:11px}
+.nav.active{color:var(--text);background:rgba(102,217,255,.10)}
+.toast{position:fixed;right:16px;top:16px;z-index:50;padding:12px 14px;border-radius:14px;background:#102039;border:1px solid var(--line);display:none;font-size:12px}
+@media(max-width:800px){
+ .kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}
+ .hero{position:relative;top:0}.brand{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:430px){.wrap{width:96%}.card{padding:14px}.kpis{gap:8px}.kpi{padding:12px}}
+</style>
+</head>
+
+<body>
+<div id="toast" class="toast"></div>
+<div class="wrap">
+
+  <header class="glass hero" id="overview">
+    <div class="brand">
+      <div>
+        <h1>Clauses 200 MCQ</h1>
+        <div class="sub">Advanced Admin Dashboard • Live Live Student Monitoring</div>
+      </div>
+      <div class="conn"><span id="dot" class="dot"></span><span id="connText">Connecting…</span></div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="l">Total Students</div><div class="v" id="total">0</div></div>
+      <div class="kpi"><div class="l">Live / Active</div><div class="v" id="live">0</div></div>
+      <div class="kpi"><div class="l">Submitted</div><div class="v" id="submitted">0</div></div>
+      <div class="kpi"><div class="l">Total Attempts</div><div class="v" id="attempts">0</div></div>
+    </div>
+  </header>
+
+  <section class="glass card" id="students" style="margin-top:16px">
+    <div class="section-title">Live Student Monitoring</div>
+    <div class="controls">
+      <input id="search" placeholder="Search student name or ID…" oninput="render()">
+      <select id="statusFilter" onchange="render()">
+        <option value="live">Live Students Only</option>
+      </select>
+      <select id="sortBy" onchange="render()">
+        <option value="updated">Latest Update</option>
+        <option value="attempted">Most Attempted</option>
+        <option value="correct">Most Correct</option>
+        <option value="percentage">Highest %</option>
+        <option value="name">Name A–Z</option>
+      </select>
+      <button class="primary" onclick="exportCSV()">Export CSV</button>
+      <button onclick="loadNow()">Refresh</button>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th><th>Status</th><th>Attempted</th><th>Progress</th>
+            <th>Sahi</th><th>Galat</th><th>%</th><th>Last Update</th>
+          </tr>
+        </thead>
+        <tbody id="rows"><tr><td colspan="8" class="empty">Connecting to Firebase…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="note">Only currently-live students are shown below. A student disappears automatically after 1 minute without a Firebase update or immediately after submission.</div>
+  </section>
+
+  <div class="grid">
+    <section class="glass card" id="analytics">
+      <div class="section-title">Analytics</div>
+      <div class="analytics">
+        <div class="a"><span>Average Attempted</span><b id="avgAttempted">0</b></div>
+        <div class="a"><span>Average Accuracy</span><b id="avgAccuracy">0%</b></div>
+        <div class="a"><span>Highest Score</span><b id="highScore">0%</b></div>
+        <div class="a"><span>Average Remaining</span><b id="avgRemaining">200</b></div>
+      </div>
+    </section>
+
+    <section class="glass card" id="settings">
+      <div class="section-title">Dashboard Info</div>
+      <div class="small">Quiz: Clauses — 200 MCQs</div>
+      <div class="small" style="margin-top:8px">Firebase: clause-quiz</div>
+      <div class="small" style="margin-top:8px">Mode: Anonymous Auth + Firestore</div>
+      <div class="small" style="margin-top:8px">Updates: Real-time onSnapshot</div>
+      <div class="note">Keep this page open during the test to watch students' progress live.</div>
+    </section>
+  </div>
+</div>
+
+<nav class="bottom">
+  <button class="nav active" onclick="go('overview',this)">Overview</button>
+  <button class="nav" onclick="go('students',this)">Students</button>
+  <button class="nav" onclick="go('analytics',this)">Analytics</button>
+  <button class="nav" onclick="go('settings',this)">Settings</button>
+</nav>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBdLKNZtCi8DNxfPN4i4e_Xa8-kQblI7k",
+  authDomain: "clause-quiz.firebaseapp.com",
+  projectId: "clause-quiz",
+  storageBucket: "clause-quiz.firebasestorage.app",
+  messagingSenderId: "290285614510",
+  appId: "1:290285614510:web:39cc603d61ef827b73c43f",
+  measurementId: "G-CR2ZHRM6QC"
+};
+
+let db, students = [], unsubscribe = null;
+
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block';
+  clearTimeout(window.__toast); window.__toast=setTimeout(()=>t.style.display='none',2200);
+}
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function num(v){ const n=Number(v); return Number.isFinite(n)?n:0; }
+function dateVal(v){
+  if(!v) return 0;
+  if(typeof v.toMillis==='function') return v.toMillis();
+  if(v.seconds) return v.seconds*1000;
+  const d=new Date(v); return isNaN(d)?0:d.getTime();
+}
+function fmt(v){
+  const n=dateVal(v); if(!n) return '—';
+  return new Date(n).toLocaleString([], {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+function isActive(s){
+  if(s.submitted===true || String(s.status||'').toLowerCase()==='submitted') return false;
+  const t=dateVal(s.lastUpdate);
+  return t && (Date.now()-t < 1*60*1000);
+}
+function statusOf(s){
+  if(s.submitted===true || String(s.status||'').toLowerCase()==='submitted') return 'submitted';
+  if(isActive(s)) return 'live';
+  return 'idle';
+}
+function loadNow(){
+  if(!db){toast('Firebase not connected');return;}
+  if(unsubscribe) unsubscribe();
+  unsubscribe=db.collection('students').onSnapshot(snap=>{
+    students=snap.docs.map(d=>({id:d.id,...d.data()}));
+    render(); setConn(true);
+  },err=>{
+    showFirebaseError('Firestore read error', err);
+    setConn(false); toast('Firebase read error — exact error shown below');
+  });
+}
+function setConn(ok){
+  document.getElementById('dot').className='dot '+(ok?'live':'off');
+  document.getElementById('connText').textContent=ok?'Connected • Live updates ON':'Connection error';
+}
+function render(){
+  const q=(document.getElementById('search').value||'').toLowerCase().trim();
+  const sf=document.getElementById('statusFilter').value;
+  const sort=document.getElementById('sortBy').value;
+
+  // Admin list: show ONLY students who are currently live.
+  // A student is considered live when their last Firebase update is within 1 minute
+  // and they have not submitted the quiz.
+  let arr=students.filter(s=>{
+    const hay=(String(s.name||'')+' '+String(s.studentId||s.id||'')).toLowerCase();
+    return isActive(s) && (!q||hay.includes(q));
+  });
+
+  arr.sort((a,b)=>{
+    if(sort==='name') return String(a.name||'').localeCompare(String(b.name||''));
+    if(sort==='attempted') return num(b.attempted)-num(a.attempted);
+    if(sort==='correct') return num(b.correct)-num(a.correct);
+    if(sort==='percentage') return num(b.percentage)-num(a.percentage);
+    return dateVal(b.lastUpdate)-dateVal(a.lastUpdate);
+  });
+
+  document.getElementById('total').textContent=students.length;
+  document.getElementById('live').textContent=students.filter(isActive).length;
+  document.getElementById('submitted').textContent=students.filter(s=>s.submitted===true || String(s.status||'').toLowerCase()==='submitted').length;
+  document.getElementById('attempts').textContent=students.reduce((a,s)=>a+num(s.attempted),0);
+
+  const liveOnly=students.filter(isActive);
+  const n=liveOnly.length||1;
+  const avgAtt=liveOnly.reduce((a,s)=>a+num(s.attempted),0)/n;
+  const avgAcc=liveOnly.reduce((a,s)=>{
+    const att=num(s.attempted); return a+(att?num(s.correct)/att*100:0);
+  },0)/n;
+  const high=liveOnly.length?Math.max(...liveOnly.map(s=>num(s.percentage))):0;
+  const avgRem=liveOnly.reduce((a,s)=>a+Math.max(0,200-num(s.attempted)),0)/n;
+  document.getElementById('avgAttempted').textContent=avgAtt.toFixed(1);
+  document.getElementById('avgAccuracy').textContent=avgAcc.toFixed(1)+'%';
+  document.getElementById('highScore').textContent=high.toFixed(1)+'%';
+  document.getElementById('avgRemaining').textContent=Math.round(avgRem);
+
+  const tbody=document.getElementById('rows');
+  if(!arr.length){
+    tbody.innerHTML='<tr><td colspan="8" class="empty">No students are currently live.</td></tr>'; return;
+  }
+  tbody.innerHTML=arr.map(s=>{
+    const att=Math.min(200,Math.max(0,num(s.attempted)));
+    const pct=Math.min(100,Math.max(0,num(s.percentage)||att/200*100));
+    const st=statusOf(s);
+    const badge=st==='live'?'<span class="badge live-b">LIVE</span>':st==='submitted'?'<span class="badge done-b">SUBMITTED</span>':'<span class="badge idle-b">IDLE</span>';
+    return `<tr>
+      <td><div class="name">${esc(s.name||'Student')}</div><div class="small">${esc(s.studentId||s.id||'')}</div></td>
+      <td>${badge}</td>
+      <td><b>${att}</b><div class="small">/ 200</div></td>
+      <td><div class="progressline"><div class="bar"><div class="fill" style="width:${pct}%"></div></div><span class="pct">${pct.toFixed(0)}%</span></div></td>
+      <td><b style="color:var(--good)">${num(s.correct)}</b></td>
+      <td><b style="color:var(--bad)">${num(s.wrong)}</b></td>
+      <td><b>${num(s.percentage).toFixed(1)}%</b></td>
+      <td class="small">${fmt(s.lastUpdate)}</td>
+    </tr>`;
+  }).join('');
+}
+function exportCSV(){
+  const q=(document.getElementById('search').value||'').toLowerCase().trim();
+  const sf=document.getElementById('statusFilter').value;
+  const arr=students.filter(s=>{
+    const hay=(String(s.name||'')+' '+String(s.studentId||s.id||'')).toLowerCase();
+    return isActive(s) && (!q||hay.includes(q));
+  });
+  const head=['Student Name','Student ID','Status','Attempted','Correct','Wrong','Percentage','Progress','Last Update'];
+  const lines=[head.join(',')];
+  arr.forEach(s=>{
+    const att=num(s.attempted), pct=num(s.percentage);
+    const vals=[s.name||'Student',s.studentId||s.id||'',statusOf(s).toUpperCase(),att,num(s.correct),num(s.wrong),pct.toFixed(1)+'%',Math.min(100,att/200*100).toFixed(1)+'%',fmt(s.lastUpdate)];
+    lines.push(vals.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(','));
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='clauses_200_admin_results.csv';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('CSV exported');
+}
+function go(id,btn){
+  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
+}
+
+firebase.initializeApp(firebaseConfig);
+firebase.auth().signInAnonymously()
+.then(()=>{
+  db=firebase.firestore();
+  setConn(true);
+  loadNow();
+  // Re-check the 5-minute live window periodically.
+  setInterval(render, 10000);
+})
+.catch(err=>{showFirebaseError('Firebase login failed', err);setConn(false);toast('Firebase login failed — exact error shown below');});
+</script>
+
+<style id="firebase-diagnostic-style">
+#firebaseDiag{
+  display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;
+  padding:14px;border-radius:14px;background:#3b1111;color:#fff;
+  border:1px solid #ff6b6b;font:14px/1.45 system-ui,sans-serif;
+  word-break:break-word;box-shadow:0 8px 30px rgba(0,0,0,.45)
+}
+</style>
+<div id="firebaseDiag"></div>
+<script id="firebase-diagnostic">
+function showFirebaseError(prefix, err){
+  console.error(prefix, err);
+  const code = err && err.code ? err.code : 'unknown';
+  const msg = err && err.message ? err.message : String(err);
+  const box = document.getElementById('firebaseDiag');
+  if(box){
+    box.style.display='block';
+    box.textContent = prefix + ' | Code: ' + code + ' | Message: ' + msg;
+  }
+  const conn = document.getElementById('connText');
+  if(conn) conn.textContent = 'Firebase Error: ' + code;
+}
+</script>
+
+</body>
+</html>
