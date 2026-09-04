@@ -168,7 +168,7 @@ tr:hover td{background:rgba(255,255,255,.025)}
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyBdLKNZtCi8DNxfPN4i4e-a8-kQblI7k",
+  apiKey: "AIzaSyBdLKNZtCi8DNxfPN4i4e_Xa8-kQblI7k",
   authDomain: "clause-quiz.firebaseapp.com",
   projectId: "clause-quiz",
   storageBucket: "clause-quiz.firebasestorage.app",
@@ -247,13 +247,14 @@ function render(){
   document.getElementById('submitted').textContent=students.filter(s=>s.submitted===true || String(s.status||'').toLowerCase()==='submitted').length;
   document.getElementById('attempts').textContent=students.reduce((a,s)=>a+num(s.attempted),0);
 
-  const n=students.length||1;
-  const avgAtt=students.reduce((a,s)=>a+num(s.attempted),0)/n;
-  const avgAcc=students.reduce((a,s)=>{
+  const liveOnly=students.filter(isActive);
+  const n=liveOnly.length||1;
+  const avgAtt=liveOnly.reduce((a,s)=>a+num(s.attempted),0)/n;
+  const avgAcc=liveOnly.reduce((a,s)=>{
     const att=num(s.attempted); return a+(att?num(s.correct)/att*100:0);
   },0)/n;
-  const high=students.length?Math.max(...students.map(s=>num(s.percentage))):0;
-  const avgRem=students.reduce((a,s)=>a+Math.max(0,200-num(s.attempted)),0)/n;
+  const high=liveOnly.length?Math.max(...liveOnly.map(s=>num(s.percentage))):0;
+  const avgRem=liveOnly.reduce((a,s)=>a+Math.max(0,200-num(s.attempted)),0)/n;
   document.getElementById('avgAttempted').textContent=avgAtt.toFixed(1);
   document.getElementById('avgAccuracy').textContent=avgAcc.toFixed(1)+'%';
   document.getElementById('highScore').textContent=high.toFixed(1)+'%';
