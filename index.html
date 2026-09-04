@@ -64,7 +64,7 @@ function sendProgress(){
     unattempted:200-attempted,
     percentage:Number((correct/200*100).toFixed(1)),
     status:(typeof submitted!=="undefined" && submitted)?"Submitted":"In Progress",
-    lastUpdated:firebase.firestore.FieldValue.serverTimestamp()
+    lastUpdate:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true}).catch(()=>{});
 }
 function setupLive(){
@@ -76,7 +76,7 @@ function setupLive(){
   b.style="margin:8px 0;padding:8px 12px;border-radius:9px;background:#eef7ff;color:#15527a;font-size:13px";
   b.innerHTML="● Live Tracking: <b>Connecting…</b>";
   if(name?.parentElement) name.parentElement.appendChild(b);
-  setInterval(sendProgress,3000);
+  setInterval(sendProgress,2000);
 }
 liveInit();
 document.addEventListener("DOMContentLoaded",setupLive);
