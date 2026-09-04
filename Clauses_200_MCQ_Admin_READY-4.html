@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clauses 200 MCQ — Admin Live Panel</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+.wrap{max-width:1200px;margin:auto;padding:18px}.card{background:white;border-radius:15px;padding:16px;margin-bottom:14px;box-shadow:0 2px 12px #0001}
+h1{margin:0 0 5px;font-size:25px}.muted{color:#667085}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:#f8fafc;padding:15px;border-radius:12px}.stat b{font-size:27px;display:block;margin-top:4px}
+input{padding:10px;border:1px solid #ccd2df;border-radius:9px;width:280px;max-width:100%}
+button{padding:10px 14px;border:0;border-radius:9px;background:#1d4ed8;color:white;font-weight:600}
+.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:850px}th,td{padding:11px 9px;border-bottom:1px solid #e5e7eb;text-align:left}th{background:#f8fafc}
+.barbg{width:150px;max-width:100%;height:10px;border-radius:20px;background:#e5e7eb;overflow:hidden}.bar{height:100%;background:#2563eb}
+.pill{padding:4px 8px;border-radius:20px;font-size:12px}.live{background:#dcfce7;color:#166534}.done{background:#dbeafe;color:#1e40af}
+.small{font-size:12px;color:#667085}@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<h1>Admin — Clauses 200 MCQ</h1>
+<div class="muted">Students ka live attempt, score aur submission status.</div>
+<div id="conn" class="small" style="margin-top:8px">Connecting…</div>
+</div>
+<div class="stats">
+<div class="stat">Total Students<b id="total">0</b></div>
+<div class="stat">Live<b id="live">0</b></div>
+<div class="stat">Submitted<b id="done">0</b></div>
+<div class="stat">Total Attempts<b id="attempts">0</b></div>
+</div>
+<div class="card">
+<input id="search" placeholder="Student name search..." oninput="render()">
+<button onclick="location.reload()">Refresh</button>
+</div>
+<div class="card tablewrap">
+<table>
+<thead><tr><th>Student</th><th>Status</th><th>Attempted</th><th>Progress</th><th>Sahi</th><th>Galat</th><th>%</th><th>Last Update</th></tr></thead>
+<tbody id="rows"><tr><td colspan="8">Loading…</td></tr></tbody>
+</table>
+</div>
+</div>
+<script>
+const FIREBASE_CONFIG={
+ apiKey:"AIzaSyBdLKNZtCi8DNwxfPN4i4e_X8a-kQblI7k",
+ authDomain:"clause-quiz.firebaseapp.com",
+ projectId:"clause-quiz",
+ storageBucket:"clause-quiz.firebasestorage.app",
+ messagingSenderId:"290285614510",
+ appId:"1:290285614510:web:39cc603d61ef827b73c43f",
+ measurementId:"G-CR2ZHRM6QC"
+};
+let db=null, students=[];
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function tm(ts){if(!ts)return "—";let d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString();}
+function render(){
+ let q=(document.getElementById("search").value||"").toLowerCase();
+ let a=students.filter(s=>(s.name||"Student").toLowerCase().includes(q));
+ a.sort((x,y)=>(y.lastUpdated?.toMillis?.()||0)-(x.lastUpdated?.toMillis?.()||0));
+ document.getElementById("rows").innerHTML=a.length?a.map(s=>{
+   let n=Number(s.attempted||0), p=n/200*100;
+   return `<tr>
+   <td><b>${esc(s.name||"Student")}</b><div class="small">${esc(s.studentId||"")}</div></td>
+   <td>${s.status==="Submitted"?'<span class="pill done">Submitted</span>':'<span class="pill live">● Live</span>'}</td>
+   <td><b>${n}/200</b></td>
+   <td><div class="barbg"><div class="bar" style="width:${Math.min(100,p)}%"></div></div><span class="small">${p.toFixed(0)}%</span></td>
+   <td>${s.correct||0}</td><td>${s.wrong||0}</td><td>${Number(s.percentage||0).toFixed(1)}%</td><td class="small">${tm(s.lastUpdated)}</td>
+   </tr>`}).join(""):'<tr><td colspan="8">No students found.</td></tr>';
+ document.getElementById("total").textContent=students.length;
+ document.getElementById("live").textContent=students.filter(s=>s.status!=="Submitted").length;
+ document.getElementById("done").textContent=students.filter(s=>s.status==="Submitted").length;
+ document.getElementById("attempts").textContent=students.reduce((a,s)=>a+Number(s.attempted||0),0);
+}
+function start(){
+ if(FIREBASE_CONFIG.apiKey==="PASTE_API_KEY"){
+   document.getElementById("conn").innerHTML="<b>Firebase config required.</b> Setup guide follow karein.";
+   return;
+ }
+ try{
+   firebase.initializeApp(FIREBASE_CONFIG); db=firebase.firestore();
+   firebase.auth().signInAnonymously().then(()=>{
+     document.getElementById("conn").textContent="● Connected — Live updates ON";
+     db.collection("students").onSnapshot(s=>{
+       students=s.docs.map(d=>d.data());render();
+     },e=>document.getElementById("conn").textContent="Database error: "+e.message);
+   }).catch(e=>document.getElementById("conn").textContent="Login error: "+e.message);
+ }catch(e){document.getElementById("conn").textContent="Firebase error: "+e.message;}
+}
+start();
+</script>
+</body></html>
